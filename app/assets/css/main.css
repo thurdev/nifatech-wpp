@@ -1,0 +1,13 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@font-face {
+    font-family: 'Versatylo';
+    src: url('./assets/fonts/Versatylo.woff') format('woff');
+}
+
+@layer base {
+  html {
+    font-family: Versatylo, system-ui, sans-serif;
+  }
+}
