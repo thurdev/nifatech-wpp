@@ -141,17 +141,30 @@ onBeforeMount(() => {
       <AppHeader />
 
       <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div
-          v-motion
-          :initial="{ opacity: 0, y: 20 }"
-          :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }"
-        >
-          <h1 class="text-2xl font-semibold mb-2">Encomendas</h1>
-          <p class="text-white/50 mb-8">
+        <div>
+          <h1
+            v-motion
+            class="text-2xl font-semibold mb-2"
+            :initial="{ opacity: 0, y: 20 }"
+            :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }"
+          >
+            Encomendas
+          </h1>
+          <p
+            v-motion
+            class="text-white/50 mb-8"
+            :initial="{ opacity: 0, y: 20 }"
+            :enter="{
+              opacity: 1,
+              y: 0,
+              transition: { duration: 500, delay: 100 },
+            }"
+          >
             Faça seu pedido selecionando um dos produtos abaixo.
           </p>
 
-          <ProductTable :products="products" @order="handleOrderRequest" />
+          <ProductsTable />
+          <!-- <ProductTable :products="products" @order="handleOrderRequest" /> -->
         </div>
       </main>
     </template>
