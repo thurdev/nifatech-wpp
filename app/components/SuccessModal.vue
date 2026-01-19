@@ -71,7 +71,7 @@ watch(model, (isOpen) => {
           :initial="{ opacity: 0, y: 10 }"
           :enter="{ opacity: 1, y: 0, transition: { delay: 300 } }"
         >
-          Encomenda Confirmada!
+          Reserva Confirmada!
         </h2>
         <p
           v-motion
@@ -79,7 +79,7 @@ watch(model, (isOpen) => {
           :initial="{ opacity: 0, y: 10 }"
           :enter="{ opacity: 1, y: 0, transition: { delay: 400 } }"
         >
-          A sua encomenda foi registrada com sucesso.
+          A sua reserva foi registrada com sucesso.
         </p>
 
         <!-- Product Info -->

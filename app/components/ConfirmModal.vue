@@ -60,7 +60,7 @@ const handleConfirm = () => {
           :initial="{ opacity: 0, y: 10 }"
           :enter="{ opacity: 1, y: 0, transition: { delay: 300 } }"
         >
-          Confirmar Encomenda
+          Confirmar Reserva
         </h2>
         <p
           v-motion
@@ -68,7 +68,7 @@ const handleConfirm = () => {
           :initial="{ opacity: 0, y: 10 }"
           :enter="{ opacity: 1, y: 0, transition: { delay: 400 } }"
         >
-          Tem a certeza que deseja encomendar este produto?
+          Tem a certeza que deseja reservar este produto?
         </p>
 
         <!-- Product Info -->

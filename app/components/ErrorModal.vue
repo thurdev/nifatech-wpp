@@ -71,7 +71,7 @@ watch(model, (isOpen) => {
           :initial="{ opacity: 0, y: 10 }"
           :enter="{ opacity: 1, y: 0, transition: { delay: 300 } }"
         >
-          Encomenda Rejeitada!
+          Reserva Rejeitada!
         </h2>
         <p
           v-motion

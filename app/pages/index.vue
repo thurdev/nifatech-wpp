@@ -124,7 +124,7 @@ useSeoMeta({
             :initial="{ opacity: 0, y: 20 }"
             :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }"
           >
-            Encomendas
+            Lista
           </h1>
           <p
             v-motion
@@ -136,7 +136,7 @@ useSeoMeta({
               transition: { duration: 500, delay: 100 },
             }"
           >
-            Faça seu pedido selecionando um dos produtos abaixo.
+            Faça sua reserva selecionando um dos produtos abaixo.
           </p>
 
           <ProductsTable
