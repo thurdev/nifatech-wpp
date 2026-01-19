@@ -34,8 +34,18 @@ const groupedProducts = computed(() => {
   );
 
   // Para cada grupo, ordena por preço (maior primeiro) e pega o primeiro
-  return Object.values(grouped).map((products) => {
+  const products = Object.values(grouped).map((products) => {
     return products.sort((a, b) => b.price_lojista - a.price_lojista)[0];
+  });
+
+  // Ordena por categoria: APARELHO, PERFUME, DECANT
+  return products.sort((a, b) => {
+    const categoryOrder = { APARELHO: 1, PERFUME: 2, DECANT: 3 };
+    const orderA =
+      categoryOrder[a?.category as keyof typeof categoryOrder] || 999;
+    const orderB =
+      categoryOrder[b?.category as keyof typeof categoryOrder] || 999;
+    return orderA - orderB;
   });
 });
 const columns: TableColumn<Product>[] = [
