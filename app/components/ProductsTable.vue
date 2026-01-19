@@ -81,7 +81,7 @@ const columns: TableColumn<Product>[] = [
 
 const pagination = ref({
   pageIndex: 0,
-  pageSize: 10,
+  pageSize: 8,
 });
 
 const globalFilter = ref("");

@@ -129,7 +129,7 @@ watch(model, (isOpen) => {
           size="xl"
           @click="$emit('close')"
         >
-          Continuar
+          Fechar
         </UButton>
 
         <!-- Auto-close indicator -->

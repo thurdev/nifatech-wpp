@@ -1,27 +1,30 @@
-<script setup lang="ts">
+<script setup>
 import { useVerification } from "~/composables/verification";
 
 const { nifaAdmin } = useVerification();
 
 const isLoading = ref(false);
-const selectedFile = ref<File[]>([]);
+
+// Por esta
+const selectedFile = ref(null);
 
 const updateProducts = async () => {
-  if (selectedFile.value.length === 0) return;
+  if (!selectedFile.value) return;
 
   isLoading.value = true;
 
   const formData = new FormData();
-  formData.append("file", selectedFile.value[0]);
+  formData.append("file", selectedFile.value);
 
   try {
-    await $fetch("https://n8n.thur.dev/webhook-test/nifatech/products", {
-      method: "PUT",
+    await $fetch("https://n8n.thur.dev/webhook/nifatech/products", {
+      method: "POST",
       body: formData,
       headers: {
         Authorization: `Bearer ${nifaAdmin.value}`,
       },
     });
+
     selectedFile.value = [];
   } catch (error) {
     console.log(error);
@@ -66,10 +69,11 @@ const updateProducts = async () => {
               layout="list"
               highlight
               color="secondary"
+              @update:modelValue="(selected) => (selectedFile = selected)"
             >
               <template #files-bottom="{ removeFile, files }">
                 <UButton
-                  v-if="files || files.length > 0"
+                  v-if="files.length > 0"
                   label="Remove all files"
                   color="neutral"
                   @click="removeFile()"
@@ -77,11 +81,12 @@ const updateProducts = async () => {
               </template>
             </UFileUpload>
             <UButton
-              class="mt-4"
+              class="mt-4 cursor-pointer"
               color="secondary"
-              icon="i-lucide-refresh-cw"
+              variant="soft"
+              icon="i-lucide-refresh-cw "
               :loading="isLoading"
-              :disabled="isLoading || files.length === 0"
+              :disabled="isLoading || !selectedFile"
               @click="updateProducts"
             >
               Atualizar Produtos

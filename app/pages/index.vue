@@ -34,9 +34,6 @@ const handleOrderRequest = (product) => {
 
 // Handle order confirmation
 const handleOrderConfirm = () => {
-  products.value = products.value.filter(
-    (p) => p.id !== selectedProduct.value.id,
-  );
   showConfirmModal.value = false;
   showSuccessModal.value = true;
 };
