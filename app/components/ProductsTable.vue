@@ -16,9 +16,28 @@ const props = defineProps<{
   orderedProduct: number;
 }>();
 
-// Group products with the same name, then only show on the table the products with the highest prices, if the same product exists multiple times with different prices, show only the highest one, after order keep showing always the highest.
-
 const data = ref<Product[]>([]);
+
+// Computed que agrupa produtos e mostra sempre o mais caro disponível de cada tipo
+const groupedProducts = computed(() => {
+  // Agrupa produtos por nome
+  const grouped = data.value.reduce(
+    (acc, product) => {
+      const key = product.product_name;
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+      acc[key].push(product);
+      return acc;
+    },
+    {} as Record<string, Product[]>,
+  );
+
+  // Para cada grupo, ordena por preço (maior primeiro) e pega o primeiro
+  return Object.values(grouped).map((products) => {
+    return products.sort((a, b) => b.price_lojista - a.price_lojista)[0];
+  });
+});
 const columns: TableColumn<Product>[] = [
   // {
   //   accessorKey: "id",
@@ -78,7 +97,7 @@ const columns: TableColumn<Product>[] = [
           },
         },
         {
-          default: () => "Encomendar",
+          default: () => "Reservar",
         },
       );
     },
@@ -140,7 +159,7 @@ watch(
       ref="table"
       v-model:pagination="pagination"
       v-model:global-filter="globalFilter"
-      :data="data"
+      :data="groupedProducts"
       :columns="columns"
       :pagination-options="{
         getPaginationRowModel: getPaginationRowModel(),
