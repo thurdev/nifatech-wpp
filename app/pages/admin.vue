@@ -1,6 +1,7 @@
 <script setup>
 import { useVerification } from "~/composables/verification";
 
+const toast = useToast();
 const { nifaAdmin } = useVerification();
 
 const isLoading = ref(false);
@@ -17,19 +18,36 @@ const updateProducts = async () => {
   formData.append("file", selectedFile.value);
 
   try {
-    await $fetch("https://n8n.thur.dev/webhook/nifatech/products", {
-      method: "POST",
-      body: formData,
-      headers: {
-        Authorization: `Bearer ${nifaAdmin.value}`,
+    const response = await $fetch(
+      "https://n8n.thur.dev/webhook/nifatech/products",
+      {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${nifaAdmin.value}`,
+        },
       },
-    });
+    );
 
-    selectedFile.value = [];
-  } catch (error) {
-    console.log(error);
+    if (response.ok) {
+      toast.add({
+        title: "Produtos atualizados com sucesso",
+        icon: "i-lucide-check-circle",
+        color: "success",
+        duration: 5000,
+      });
+    }
+  } catch {
+    toast.add({
+      title:
+        "Erro ao atualizar produtos, tente novamente ou contate o suporte.",
+      icon: "i-lucide-x-circle",
+      color: "danger",
+      duration: 5000,
+    });
   } finally {
     isLoading.value = false;
+    selectedFile.value = null;
   }
 };
 
@@ -67,6 +85,7 @@ useSeoMeta({
             }"
           >
             <UFileUpload
+              v-model="selectedFile"
               icon="i-lucide-upload-cloud"
               label="Arraste seu arquivo aqui ou selecione"
               class="w-96 min-h-48 cursor-pointer"
@@ -75,7 +94,6 @@ useSeoMeta({
               layout="list"
               highlight
               color="secondary"
-              @update:modelValue="(selected) => (selectedFile = selected)"
             >
               <template #files-bottom="{ removeFile, files }">
                 <UButton
