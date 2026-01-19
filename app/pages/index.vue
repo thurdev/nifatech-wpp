@@ -42,7 +42,7 @@ const handleOrderConfirm = async () => {
       {
         method: "POST",
         body: {
-          phoneNumber: cPhoneNumber,
+          phoneNumber: cPhoneNumber.value,
           productId: selectedProduct.value.id,
         },
       },
