@@ -1,5 +1,4 @@
 <script setup>
-import { ref, provide } from "vue";
 import { useVerification } from "~/composables/verification";
 
 const { cPhoneNumber, isVerified } = useVerification();
@@ -14,60 +13,6 @@ const phoneNumber = ref("");
 const showConfirmModal = ref(false);
 const showSuccessModal = ref(false);
 const selectedProduct = ref(null);
-
-// Products data
-const products = ref([
-  {
-    id: 1,
-    name: 'MacBook Pro 14"',
-    category: "Computadores",
-    price: 2499.0,
-    stock: 12,
-  },
-  {
-    id: 2,
-    name: "iPhone 15 Pro Max",
-    category: "Smartphones",
-    price: 1399.0,
-    stock: 25,
-  },
-  {
-    id: 3,
-    name: "AirPods Pro 2",
-    category: "Acessórios",
-    price: 279.0,
-    stock: 50,
-  },
-  { id: 4, name: "iPad Air M2", category: "Tablets", price: 799.0, stock: 18 },
-  {
-    id: 5,
-    name: "Apple Watch Ultra 2",
-    category: "Wearables",
-    price: 899.0,
-    stock: 8,
-  },
-  {
-    id: 6,
-    name: "Magic Keyboard",
-    category: "Acessórios",
-    price: 349.0,
-    stock: 30,
-  },
-  {
-    id: 7,
-    name: "Studio Display",
-    category: "Monitores",
-    price: 1799.0,
-    stock: 5,
-  },
-  {
-    id: 8,
-    name: "Mac Mini M2 Pro",
-    category: "Computadores",
-    price: 1499.0,
-    stock: 15,
-  },
-]);
 
 // Handle phone submission
 const handlePhoneSubmit = (phone) => {
@@ -100,9 +45,6 @@ const handleCodeGoBack = () => {
   currentStep.value = "phone";
   cPhoneNumber.value = null;
 };
-
-// Provide products to child components
-provide("products", products);
 
 onBeforeMount(() => {
   // Check if user is already verified
@@ -144,7 +86,7 @@ onBeforeMount(() => {
         <div>
           <h1
             v-motion
-            class="text-2xl font-semibold mb-2"
+            class="text-2xl font-semibold light:text-black mb-2"
             :initial="{ opacity: 0, y: 20 }"
             :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }"
           >
@@ -152,7 +94,7 @@ onBeforeMount(() => {
           </h1>
           <p
             v-motion
-            class="text-white/50 mb-8"
+            class="dark:text-white/50 mb-8"
             :initial="{ opacity: 0, y: 20 }"
             :enter="{
               opacity: 1,
@@ -163,8 +105,7 @@ onBeforeMount(() => {
             Faça seu pedido selecionando um dos produtos abaixo.
           </p>
 
-          <ProductsTable />
-          <!-- <ProductTable :products="products" @order="handleOrderRequest" /> -->
+          <ProductsTable @onOrder="handleOrderRequest" />
         </div>
       </main>
     </template>

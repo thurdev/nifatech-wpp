@@ -1,14 +1,10 @@
 <script setup lang="ts">
+import { currencyFormatter } from "~/utils/formats";
+import type { Product } from "~/types/product";
 const model = defineModel<boolean>();
 
 defineProps<{
-  product?: {
-    id: number;
-    name: string;
-    category: string;
-    price: number;
-    stock: number;
-  };
+  product?: Product;
 }>();
 
 const $emit = defineEmits(["confirm", "cancel"]);
@@ -16,13 +12,6 @@ const $emit = defineEmits(["confirm", "cancel"]);
 const handleClose = () => {
   model.value = false;
   $emit("cancel");
-};
-
-const formatPrice = (price: number) => {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(price);
 };
 </script>
 
@@ -33,7 +22,7 @@ const formatPrice = (price: number) => {
         <!-- Icon -->
         <div
           v-motion
-          class="w-16 h-16 bg-secondary/10 rounded-2xl flex items-center justify-center mx-auto mb-6"
+          class="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-6"
           :initial="{ scale: 0 }"
           :enter="{
             scale: 1,
@@ -41,7 +30,7 @@ const formatPrice = (price: number) => {
           }"
         >
           <svg
-            class="w-8 h-8 text-secondary"
+            class="w-8 h-8 text-amber-500"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -58,7 +47,7 @@ const formatPrice = (price: number) => {
         <!-- Title -->
         <h2
           v-motion
-          class="text-2xl font-semibold text-white text-center mb-2"
+          class="text-2xl font-semibold text-black dark:text-white text-center mb-2"
           :initial="{ opacity: 0, y: 10 }"
           :enter="{ opacity: 1, y: 0, transition: { delay: 300 } }"
         >
@@ -66,7 +55,7 @@ const formatPrice = (price: number) => {
         </h2>
         <p
           v-motion
-          class="text-white/50 text-center mb-6"
+          class="text-slate-500 dark:text-white/50 text-center mb-6"
           :initial="{ opacity: 0, y: 10 }"
           :enter="{ opacity: 1, y: 0, transition: { delay: 400 } }"
         >
@@ -100,12 +89,16 @@ const formatPrice = (price: number) => {
               </svg>
             </div>
             <div class="flex-1">
-              <h3 class="font-semibold text-secondary">{{ product.name }}</h3>
-              <p class="text-sm text-white/50">{{ product.category }}</p>
+              <h3 class="font-semibold text-secondary">
+                {{ product.product_name }}
+              </h3>
+              <p class="text-sm text-slate-500 dark:text-white/50">
+                {{ product.category }}
+              </p>
             </div>
             <div class="text-right">
               <p class="font-semibold text-secondary">
-                {{ formatPrice(product.price) }}
+                {{ currencyFormatter(product.price_lojista) }}
               </p>
             </div>
           </div>

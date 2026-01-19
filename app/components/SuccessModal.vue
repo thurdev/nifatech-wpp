@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import type { Product } from "~/types/product";
 const model = defineModel<boolean>();
 
 defineProps<{
-  product: Record<string, unknown>;
+  product?: Product;
 }>();
 
 const emit = defineEmits(["close"]);
@@ -34,7 +35,7 @@ watch(model, (isOpen) => {
         <!-- Animated Checkmark -->
         <div
           v-motion
-          class="w-20 h-20 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-6"
+          class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6"
           :initial="{ scale: 0 }"
           :enter="{
             scale: 1,
@@ -43,7 +44,7 @@ watch(model, (isOpen) => {
         >
           <svg
             v-motion
-            class="w-10 h-10 text-secondary"
+            class="w-10 h-10 text-primary"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -66,7 +67,7 @@ watch(model, (isOpen) => {
         <!-- Title -->
         <h2
           v-motion
-          class="text-2xl font-semibold text-white mb-2"
+          class="text-2xl font-semibold text-blac dark:text-white mb-2"
           :initial="{ opacity: 0, y: 10 }"
           :enter="{ opacity: 1, y: 0, transition: { delay: 300 } }"
         >
@@ -78,7 +79,7 @@ watch(model, (isOpen) => {
           :initial="{ opacity: 0, y: 10 }"
           :enter="{ opacity: 1, y: 0, transition: { delay: 400 } }"
         >
-          A sua encomenda foi registada com sucesso.
+          A sua encomenda foi registrada com sucesso.
         </p>
 
         <!-- Product Info -->
@@ -107,8 +108,12 @@ watch(model, (isOpen) => {
               </svg>
             </div>
             <div>
-              <p class="font-medium text-secondary">{{ product.name }}</p>
-              <p class="text-sm text-white/50">{{ product.category }}</p>
+              <p class="font-medium text-secondary">
+                {{ product.product_name }}
+              </p>
+              <p class="text-sm text-slate-500 dark:text-white/50">
+                {{ product.category }}
+              </p>
             </div>
           </div>
         </div>
@@ -130,7 +135,7 @@ watch(model, (isOpen) => {
         <!-- Auto-close indicator -->
         <p
           v-motion
-          class="text-xs text-white/40 mt-4"
+          class="text-xs text-slate-500 dark:text-white/40 mt-4"
           :initial="{ opacity: 0, y: 10 }"
           :enter="{ opacity: 1, y: 0, transition: { delay: 800 } }"
         >
