@@ -89,12 +89,12 @@ onBeforeMount(() => {
 });
 
 useSeoMeta({
-  title: "Encomendas - NifaTech",
+  title: "Lista - NifaTech",
   description:
-    "Faça seu pedido selecionando um dos produtos disponíveis na NifaTech.",
-  ogTitle: "Encomendas - NifaTech",
+    "Faça a sua reserva selecionando um dos produtos disponíveis na NifaTech.",
+  ogTitle: "Lista - NifaTech",
   ogDescription:
-    "Faça seu pedido selecionando um dos produtos disponíveis na NifaTech.",
+    "Faça a sua reserva selecionando um dos produtos disponíveis na NifaTech.",
   themeColor: "#13f2f2",
 });
 </script>

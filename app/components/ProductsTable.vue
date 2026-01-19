@@ -16,6 +16,8 @@ const props = defineProps<{
   orderedProduct: number;
 }>();
 
+// Group products with the same name, then only show on the table the products with the highest prices, if the same product exists multiple times with different prices, show only the highest one, after order keep showing always the highest.
+
 const data = ref<Product[]>([]);
 const columns: TableColumn<Product>[] = [
   // {
