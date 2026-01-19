@@ -20,4 +20,16 @@ export default defineNuxtConfig({
       ],
     },
   },
+  app: {
+    head: {
+      link: [
+        { rel: "icon", type: "image/png", href: "assets/images/logo.png" },
+      ],
+      htmlAttrs: {
+        lang: "pt-BR",
+      },
+      charset: "utf-16",
+      viewport: "width=device-width, initial-scale=1, maximum-scale=1",
+    },
+  },
 });

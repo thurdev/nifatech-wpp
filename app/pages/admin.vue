@@ -32,6 +32,12 @@ const updateProducts = async () => {
     isLoading.value = false;
   }
 };
+
+useSeoMeta({
+  title: "Admin - NifaTech",
+  description: "Administração NifaTech, gerencie a loja.",
+  themeColor: "#13f2f2",
+});
 </script>
 
 <template>

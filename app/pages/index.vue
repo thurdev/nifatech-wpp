@@ -87,6 +87,16 @@ onBeforeMount(() => {
     currentStep.value = "code";
   }
 });
+
+useSeoMeta({
+  title: "Encomendas - NifaTech",
+  description:
+    "Faça seu pedido selecionando um dos produtos disponíveis na NifaTech.",
+  ogTitle: "Encomendas - NifaTech",
+  ogDescription:
+    "Faça seu pedido selecionando um dos produtos disponíveis na NifaTech.",
+  themeColor: "#13f2f2",
+});
 </script>
 
 <template>
