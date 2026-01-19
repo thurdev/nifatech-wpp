@@ -12,7 +12,9 @@ const phoneNumber = ref("");
 // Modal states
 const showConfirmModal = ref(false);
 const showSuccessModal = ref(false);
+const showErrorModal = ref(false);
 const selectedProduct = ref(null);
+const orderedProduct = ref(-1);
 
 // Handle phone submission
 const handlePhoneSubmit = (phone) => {
@@ -33,24 +35,34 @@ const handleOrderRequest = (product) => {
 };
 
 // Handle order confirmation
-const handleOrderConfirm = () => {
+const handleOrderConfirm = async () => {
   try {
-    $fetch("https://n8n.thur.dev/webhook/nifatech/create-order", {
-      method: "POST",
-      body: {
-        phoneNumber: phoneNumber.value,
-        productId: selectedProduct.value.id,
+    const response = await $fetch(
+      "https://n8n.thur.dev/webhook/nifatech/create-order",
+      {
+        method: "POST",
+        body: {
+          phoneNumber: phoneNumber.value,
+          productId: selectedProduct.value.id,
+        },
       },
-    });
-    showSuccessModal.value = true;
-    // Remove product from the products table
+    );
+
+    if (response.ok) {
+      showSuccessModal.value = true;
+      // Remove product from the products table
+      orderedProduct.value = selectedProduct.value.id;
+    }
   } catch (error) {
     console.error("Error creating order:", error);
     showErrorModal.value = true;
   } finally {
     showConfirmModal.value = false;
-    selectedProduct.value = null;
   }
+};
+
+const handleDone = () => {
+  orderedProduct.value = -1;
 };
 
 const handleCodeGoBack = () => {
@@ -117,7 +129,11 @@ onBeforeMount(() => {
             Faça seu pedido selecionando um dos produtos abaixo.
           </p>
 
-          <ProductsTable @onOrder="handleOrderRequest" />
+          <ProductsTable
+            :ordered-product="orderedProduct"
+            @on-order="handleOrderRequest"
+            @on-done="handleDone"
+          />
         </div>
       </main>
     </template>
@@ -135,6 +151,13 @@ onBeforeMount(() => {
       v-model="showSuccessModal"
       :product="selectedProduct"
       @close="showSuccessModal = false"
+    />
+
+    <!-- Error Modal -->
+    <ErrorModal
+      v-model="showErrorModal"
+      :product="selectedProduct"
+      @close="showErrorModal = false"
     />
   </div>
 </template>

@@ -10,6 +10,10 @@ const UButton = resolveComponent("UButton");
 const table = useTemplateRef("table");
 const emit = defineEmits<{
   (e: "onOrder", product: Product): void;
+  (e: "onDone"): void;
+}>();
+const props = defineProps<{
+  orderedProduct: number;
 }>();
 
 const data = ref<Product[]>([]);
@@ -96,6 +100,18 @@ onMounted(async () => {
 
   isLoading.value = false;
 });
+
+watch(
+  () => props.orderedProduct,
+  (newVal) => {
+    if (newVal !== undefined && newVal !== -1) {
+      data.value = data.value.filter((product) => product.id !== newVal);
+      setTimeout(() => {
+        emit("onDone");
+      }, 5000);
+    }
+  },
+);
 </script>
 
 <template>

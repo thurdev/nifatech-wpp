@@ -8,10 +8,19 @@ defineProps<{
 }>();
 
 const $emit = defineEmits(["confirm", "cancel"]);
+const isLoading = ref(false);
 
 const handleClose = () => {
   model.value = false;
   $emit("cancel");
+};
+
+const handleConfirm = () => {
+  isLoading.value = true;
+  $emit("confirm");
+  setTimeout(() => {
+    isLoading.value = false;
+  }, 1000);
 };
 </script>
 
@@ -116,6 +125,7 @@ const handleClose = () => {
             color="secondary"
             variant="outline"
             size="xl"
+            :disabled="isLoading"
             @click="$emit('cancel')"
           >
             Cancelar
@@ -124,7 +134,9 @@ const handleClose = () => {
             class="flex-1 flex items-center justify-center cursor-pointer"
             color="secondary"
             size="xl"
-            @click="$emit('confirm')"
+            :loading="isLoading"
+            :disabled="isLoading"
+            @click="handleConfirm"
           >
             Confirmar
           </UButton>

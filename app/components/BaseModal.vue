@@ -15,17 +15,17 @@ defineEmits(["close"]);
       <!-- Overlay -->
       <div
         v-if="showOverlay"
-        class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-        @click="$emit('close')"
         v-motion
+        class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
         :initial="{ opacity: 0 }"
         :enter="{ opacity: 1, transition: { duration: 300 } }"
+        @click="$emit('close')"
       />
 
       <!-- Modal Content -->
       <div
-        class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
         v-motion
+        class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
         :initial="{ opacity: 0, scale: 0.95, y: 20 }"
         :enter="{
           opacity: 1,

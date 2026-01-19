@@ -22,7 +22,7 @@ const handleLogout = async () => {
     </template>
 
     <template #right>
-      <p class="text-sm text-green-600" v-if="!nifaAdmin">
+      <p v-if="!nifaAdmin" class="text-sm text-green-600">
         Autenticado via whatsapp
       </p>
       <UTooltip :delay-duration="0" text="Trocar tema">
