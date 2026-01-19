@@ -34,8 +34,23 @@ const handleOrderRequest = (product) => {
 
 // Handle order confirmation
 const handleOrderConfirm = () => {
-  showConfirmModal.value = false;
-  showSuccessModal.value = true;
+  try {
+    $fetch("https://n8n.thur.dev/webhook/nifatech/create-order", {
+      method: "POST",
+      body: {
+        phoneNumber: phoneNumber.value,
+        productId: selectedProduct.value.id,
+      },
+    });
+    showSuccessModal.value = true;
+    // Remove product from the products table
+  } catch (error) {
+    console.error("Error creating order:", error);
+    showErrorModal.value = true;
+  } finally {
+    showConfirmModal.value = false;
+    selectedProduct.value = null;
+  }
 };
 
 const handleCodeGoBack = () => {

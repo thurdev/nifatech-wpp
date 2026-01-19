@@ -107,7 +107,7 @@ watch(model, (isOpen) => {
                 />
               </svg>
             </div>
-            <div>
+            <div v-if="product">
               <p class="font-medium text-secondary">
                 {{ product.product_name }}
               </p>

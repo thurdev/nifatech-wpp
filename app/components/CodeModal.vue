@@ -8,7 +8,7 @@ const phone = cPhoneNumber;
 
 const emit = defineEmits(["verify", "back"]);
 
-const code = ref("");
+const code = ref([]);
 const isLoading = ref(false);
 const error = ref("");
 
@@ -29,8 +29,8 @@ const handleSubmit = async () => {
     });
     setVerified(true);
     emit("verify");
-  } catch (err) {
-    if (err?.response?.status === 401) {
+  } catch (err: unknown) {
+    if ((err as { response: { status: number } })?.response?.status === 401) {
       error.value = "Código inválido. Tente novamente.";
       setTimeout(() => {
         error.value = "";
@@ -44,7 +44,7 @@ const handleSubmit = async () => {
 
 const resendCode = async () => {
   // Simulate resend
-  code.value = "";
+  code.value = [];
   error.value = "";
 
   isLoading.value = true;

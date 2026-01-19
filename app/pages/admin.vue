@@ -84,7 +84,7 @@ const updateProducts = async () => {
               class="mt-4 cursor-pointer"
               color="secondary"
               variant="soft"
-              icon="i-lucide-refresh-cw "
+              icon="i-lucide-upload-cloud"
               :loading="isLoading"
               :disabled="isLoading || !selectedFile"
               @click="updateProducts"

@@ -17,7 +17,7 @@ const isLoading = ref(false);
 const error = ref("");
 const loggedIn = ref(false);
 
-const handlePhoneInput = (value) => {
+const handlePhoneInput = (value: string) => {
   phone.value = formatPhone(String(value));
   error.value = "";
 };
@@ -35,7 +35,7 @@ const handleSubmit = async () => {
   const extraUrl = props.isAdmin ? "/admin" : "";
 
   try {
-    const response = await $fetch(
+    const response = await $fetch<{ token: string }>(
       `https://n8n.thur.dev/webhook/nifatech/verify-phone${extraUrl}`,
       {
         method: "POST",
@@ -53,8 +53,8 @@ const handleSubmit = async () => {
 
     cPhoneNumber.value = digits;
     emit("submit", phone.value);
-  } catch (err) {
-    if (err?.response?.status === 401) {
+  } catch (err: unknown) {
+    if ((err as { response: { status: number } })?.response?.status === 401) {
       if (props.isAdmin) {
         adminAttempts.value++;
         if (adminAttempts.value >= 3) {

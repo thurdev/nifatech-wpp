@@ -89,7 +89,7 @@ const globalFilter = ref("");
 const isLoading = ref(true);
 
 onMounted(async () => {
-  const products = await $fetch(
+  const products = await $fetch<Product[]>(
     "https://n8n.thur.dev/webhook/nifatech/products",
   );
   data.value = products;
