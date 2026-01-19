@@ -2,12 +2,12 @@
 @import "@nuxt/ui";
 
 @font-face {
-    font-family: 'Versatylo';
-    src: url('./assets/fonts/Versatylo.woff') format('woff');
+  font-family: "Versatylo";
+  src: url("./assets/fonts/Versatylo.woff") format("woff");
 }
 
 @layer base {
-  html {
+  .text-logo {
     font-family: Versatylo, system-ui, sans-serif;
   }
 }

@@ -1,34 +1,35 @@
 <script setup lang="ts">
-import { h, resolveComponent } from "vue";
-import type { TableColumn } from "@nuxt/ui";
+import { h, resolveComponent, toRaw } from "vue";
+import { getPaginationRowModel } from "@tanstack/vue-table";
 import { currencyFormatter } from "~/utils/formats";
+import type { TableColumn } from "@nuxt/ui";
 import type { Product } from "~/types/product";
-
-const isOrderModalOpen = ref(false);
-const selectedProduct = ref<string>();
-
-defineProps<{
-  data: Product[];
-  isLoading: boolean;
-}>();
 
 const UButton = resolveComponent("UButton");
 
+const table = useTemplateRef("table");
+const emit = defineEmits<{
+  (e: "onOrder", product: Product): void;
+  (e: "onDone"): void;
+}>();
+const props = defineProps<{
+  orderedProduct: number;
+}>();
+
+const data = ref<Product[]>([]);
 const columns: TableColumn<Product>[] = [
-  {
-    accessorKey: "id",
-    header: "#",
-    cell: ({ row }) => `#${row.getValue("id")}`,
-  },
+  // {
+  //   accessorKey: "id",
+  //   header: "#",
+  //   cell: ({ row }) => `#${row.getValue("id")}`,
+  // },
   {
     accessorKey: "category",
     header: "Categoria",
-    cell: ({ row }) => row.getValue("category"),
   },
   {
     accessorKey: "product_name",
     header: "Produto",
-    cell: ({ row }) => row.getValue("product_name"),
   },
   {
     accessorKey: "price_lojista",
@@ -38,7 +39,7 @@ const columns: TableColumn<Product>[] = [
       return h(UButton, {
         color: "neutral",
         variant: "ghost",
-        label: "Preço Lojista",
+        label: "Preço",
         icon: isSorted
           ? isSorted === "asc"
             ? "i-lucide-arrow-up-narrow-wide"
@@ -48,81 +49,116 @@ const columns: TableColumn<Product>[] = [
         onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
       });
     },
-    cell: ({ row }) => currencyFormatter(row.getValue("price_lojista")),
-  },
-  {
-    accessorKey: "price_clients",
-    header: "Preço Clientes",
-    cell: ({ row }) => currencyFormatter(row.getValue("price_clients")),
-  },
-  {
-    accessorKey: "bought_for",
-    header: "Comprado por",
-    cell: ({ row }) => currencyFormatter(row.getValue("bought_for")),
-  },
-  {
-    accessorKey: "actions",
-    header: "Ações",
     cell: ({ row }) => {
-      return h(UButton, {
-        color: "primary",
-        variant: "solid",
-        label: "Encomendar",
-        icon: "i-lucide-shopping-cart",
-        class: "-mx-2.5 hover:cursor-pointer",
-        onClick: () => {
-          isOrderModalOpen.value = true;
-          selectedProduct.value = row.getValue("id");
+      return currencyFormatter(
+        Number.parseFloat(row.getValue("price_lojista")),
+      );
+    },
+  },
+  {
+    accessorKey: "action",
+    header: "Ação",
+    meta: {
+      class: {
+        th: "text-right",
+        td: "text-right font-medium",
+      },
+    },
+    cell: ({ row }) => {
+      return h(
+        UButton,
+        {
+          color: "secondary",
+          class: "cursor-pointer",
+          icon: "i-lucide-shopping-cart",
+          onClick: () => {
+            emit("onOrder", toRaw(row.original));
+          },
         },
-      });
+        {
+          default: () => "Encomendar",
+        },
+      );
     },
   },
 ];
 
-const sorting = ref([
-  {
-    id: "price_lojista",
-    desc: false,
-  },
-]);
-
-watch([isOrderModalOpen], (newVal) => {
-  if (!newVal) {
-    selectedProduct.value = "";
-  }
+const pagination = ref({
+  pageIndex: 0,
+  pageSize: 8,
 });
 
-const handleOnConfirm = () => {
-  isOrderModalOpen.value = false;
+const globalFilter = ref("");
 
-  // If no product selected do not register
-  if (!selectedProduct.value) {
-    return;
-  }
+const isLoading = ref(true);
 
-  // TODO Call webhook to send whatsapp message & disable product from db
-  $fetch("https://n8n.thur.dev/webhook/nifatech/order", {
-    method: "POST",
-    body: {
-      productId: selectedProduct.value,
-    },
-  });
-  // TODO Create a product status column on table and only retrieve the ones that are available (date from last updated date)
+onMounted(async () => {
+  const products = await $fetch<Product[]>(
+    "https://n8n.thur.dev/webhook/nifatech/products",
+  );
+  data.value = products;
 
-  selectedProduct.value = "";
-};
+  isLoading.value = false;
+});
+
+watch(
+  () => props.orderedProduct,
+  (newVal) => {
+    if (newVal !== undefined && newVal !== -1) {
+      data.value = data.value.filter((product) => product.id !== newVal);
+      setTimeout(() => {
+        emit("onDone");
+      }, 5000);
+    }
+  },
+);
 </script>
 
 <template>
-  <UTable
-    v-model:sorting="sorting"
-    :data="data"
-    :columns="columns"
-    :loading="isLoading"
-    loading-color="primary"
-    loading-animation="carousel"
-    class="flex-1"
-  />
+  <div
+    v-motion
+    class="w-full space-y-4 pb-4"
+    :initial="{ opacity: 0, y: 20 }"
+    :enter="{
+      opacity: 1,
+      y: 0,
+      transition: { duration: 500, delay: 200 },
+    }"
+  >
+    <div class="flex px-4 py-3.5 border-b border-accented">
+      <UInput
+        v-model="globalFilter"
+        class="max-w-sm"
+        placeholder="Filtrar..."
+        color="secondary"
+      />
+    </div>
 
-  <ConfirmOrder :is-open="isOrderModalOpen" @confirm="handleOnConfirm" />
+    <UTable
+      ref="table"
+      v-model:pagination="pagination"
+      v-model:global-filter="globalFilter"
+      :data="data"
+      :columns="columns"
+      :pagination-options="{
+        getPaginationRowModel: getPaginationRowModel(),
+      }"
+      :loading="isLoading"
+      loading-color="secondary"
+      loading-animation="carousel"
+      class="flex-1"
+    />
+
+    <div class="flex justify-end border-t border-default pt-4 px-4">
+      <UPagination
+        :page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
+        :items-per-page="table?.tableApi?.getState().pagination.pageSize"
+        :total="table?.tableApi?.getFilteredRowModel().rows.length"
+        color="secondary"
+        active-color="secondary"
+        variant="soft"
+        @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)"
+      />
+    </div>
+  </div>
 </template>
