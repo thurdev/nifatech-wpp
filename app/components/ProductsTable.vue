@@ -23,7 +23,7 @@ const groupedProducts = computed(() => {
   // Agrupa produtos por nome
   const grouped = data.value.reduce(
     (acc, product) => {
-      const key = product.product_name;
+      const key = product.product_name.trim().toLowerCase();
       if (!acc[key]) {
         acc[key] = [];
       }
