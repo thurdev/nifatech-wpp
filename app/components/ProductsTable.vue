@@ -54,9 +54,32 @@ const columns: TableColumn<Product>[] = [
   //   header: "#",
   //   cell: ({ row }) => `#${row.getValue("id")}`,
   // },
+
   {
-    accessorKey: "category",
-    header: "Categoria",
+    accessorKey: "action",
+    header: "Ação",
+    meta: {
+      class: {
+        th: "text-left",
+        td: "text-left font-medium",
+      },
+    },
+    cell: ({ row }) => {
+      return h(
+        UButton,
+        {
+          color: "secondary",
+          class: "cursor-pointer",
+          icon: "i-lucide-shopping-cart",
+          onClick: () => {
+            emit("onOrder", toRaw(row.original));
+          },
+        },
+        {
+          default: () => "Reservar",
+        },
+      );
+    },
   },
   {
     accessorKey: "product_name",
@@ -86,31 +109,10 @@ const columns: TableColumn<Product>[] = [
       );
     },
   },
+
   {
-    accessorKey: "action",
-    header: "Ação",
-    meta: {
-      class: {
-        th: "text-right",
-        td: "text-right font-medium",
-      },
-    },
-    cell: ({ row }) => {
-      return h(
-        UButton,
-        {
-          color: "secondary",
-          class: "cursor-pointer",
-          icon: "i-lucide-shopping-cart",
-          onClick: () => {
-            emit("onOrder", toRaw(row.original));
-          },
-        },
-        {
-          default: () => "Reservar",
-        },
-      );
-    },
+    accessorKey: "category",
+    header: "Categoria",
   },
 ];
 
