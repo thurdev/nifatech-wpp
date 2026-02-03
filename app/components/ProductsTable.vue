@@ -104,9 +104,31 @@ const columns: TableColumn<Product>[] = [
       });
     },
     cell: ({ row }) => {
-      return currencyFormatter(
-        Number.parseFloat(row.getValue("price_lojista")),
-      );
+      const priceLojista = Number.parseFloat(row.getValue("price_lojista"));
+      const priceNt = Number.parseFloat(row.original.price_nt as unknown as string);
+
+      const elements = [
+        h(
+          "span",
+          {
+            innerHTML: `Lojista: ${currencyFormatter(priceLojista)}`,
+          }
+        )
+      ];
+
+      if (priceNt && priceNt > 0) {
+        elements.push(
+          h(
+            "span",
+            {
+              class: "text-secondary",
+              innerHTML: `Parceiro NT: ${currencyFormatter(priceNt)}`,
+            }
+          )
+        );
+      }
+
+      return h("div", { class: "flex flex-col" }, elements);
     },
   },
 

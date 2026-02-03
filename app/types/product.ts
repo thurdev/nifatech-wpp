@@ -3,6 +3,7 @@ export interface Product {
     category: string;
     product_name: string;
     price_lojista: number;
+    price_nt: number;
     price_clients: number;
     bought_for: number;
     created_at: string;
