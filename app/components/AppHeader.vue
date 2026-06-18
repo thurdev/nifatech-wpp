@@ -10,35 +10,61 @@ const handleLogout = async () => {
 </script>
 
 <template>
-  <UHeader :toggle="false">
-    <template #title>
-      <div class="flex items-center justify-center gap-4">
-        <img src="~/assets/images/nifa-logo.png" class="w-10 h-10 rounded-xl" />
+  <header
+    class="sticky top-0 z-50 border-b border-white/[0.07] bg-black/55 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-black/40"
+  >
+    <!-- neon hairline glow under the nav -->
+    <div
+      class="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#13f2f2]/60 to-transparent"
+    />
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <div class="flex items-center gap-3">
+          <div class="relative flex-shrink-0">
+            <div
+              class="absolute inset-0 rounded-xl bg-[#13f2f2]/25 blur-md pointer-events-none"
+            />
+            <img
+              src="~/assets/images/nifa-logo.png"
+              class="relative w-9 h-9 rounded-xl object-cover"
+              alt="NifaTech"
+            />
+          </div>
+          <span class="text-logo text-base tracking-[0.2em] text-white/90 select-none">
+            nifa tech
+          </span>
+        </div>
 
-        <h1 class="text-lg font-semibold dark:text-white text-logo">
-          nifa tech
-        </h1>
-      </div>
-    </template>
+        <!-- Right -->
+        <div class="flex items-center gap-2">
+          <!-- Authenticated badge (non-admin only) -->
+          <div
+            v-if="!nifaAdmin"
+            class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-emerald-500/20 bg-emerald-500/8 text-emerald-400"
+          >
+            <span class="relative flex h-1.5 w-1.5">
+              <span
+                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"
+              />
+              <span
+                class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"
+              />
+            </span>
+            WhatsApp
+          </div>
 
-    <template #right>
-      <p v-if="!nifaAdmin" class="text-sm text-green-600">
-        Autenticado via whatsapp
-      </p>
-      <UTooltip :delay-duration="0" text="Trocar tema">
-        <UColorModeButton class="cursor-pointer" variant="soft" />
-      </UTooltip>
-      <div class="relative flex gap-4 items-center justify-center">
-        <UTooltip :delay-duration="0" text="Deslogar">
-          <UButton
-            color="error"
-            variant="soft"
-            class="flex items-center justify-center cursor-pointer"
-            icon="i-lucide-log-out"
-            @click="handleLogout"
-          />
-        </UTooltip>
+          <UTooltip :delay-duration="0" text="Terminar sessão">
+            <UButton
+              color="error"
+              variant="ghost"
+              class="cursor-pointer"
+              icon="i-lucide-log-out"
+              @click="handleLogout"
+            />
+          </UTooltip>
+        </div>
       </div>
-    </template>
-  </UHeader>
+    </div>
+  </header>
 </template>

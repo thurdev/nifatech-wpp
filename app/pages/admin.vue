@@ -5,8 +5,6 @@ const toast = useToast();
 const { nifaAdmin } = useVerification();
 
 const isLoading = ref(false);
-
-// Por esta
 const selectedFile = ref(null);
 
 const updateProducts = async () => {
@@ -40,7 +38,7 @@ const updateProducts = async () => {
   } catch {
     toast.add({
       title:
-        "Erro ao atualizar produtos, tente novamente ou contate o suporte.",
+        "Erro ao atualizar produtos, tente novamente ou contacte o suporte.",
       icon: "i-lucide-x-circle",
       color: "danger",
       duration: 5000,
@@ -61,35 +59,41 @@ useSeoMeta({
 <template>
   <div class="min-h-screen">
     <PhoneModal v-if="!nifaAdmin" is-admin />
+
     <template v-else>
       <AppHeader />
 
       <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div>
+        <div class="max-w-xl">
           <h1
             v-motion
-            class="text-2xl font-semibold light:text-black mb-2"
-            :initial="{ opacity: 0, y: 20 }"
-            :enter="{ opacity: 1, y: 0, transition: { duration: 500 } }"
+            class="text-2xl font-semibold mb-1"
+            :initial="{ opacity: 0, y: 16 }"
+            :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }"
           >
-            Atualizar produtos
+            Atualizar Produtos
           </h1>
+          <p
+            v-motion
+            class="text-sm text-[var(--ui-text-muted)] mb-8"
+            :initial="{ opacity: 0, y: 16 }"
+            :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 80 } }"
+          >
+            Carregue um ficheiro CSV para atualizar o catálogo de produtos.
+          </p>
 
           <div
             v-motion
-            :initial="{ opacity: 0, y: 20 }"
-            :enter="{
-              opacity: 1,
-              y: 0,
-              transition: { duration: 500, delay: 200 },
-            }"
+            :initial="{ opacity: 0, y: 16 }"
+            :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: 180 } }"
+            class="space-y-4"
           >
             <UFileUpload
               v-model="selectedFile"
               icon="i-lucide-upload-cloud"
-              label="Arraste seu arquivo aqui ou selecione"
-              class="w-96 min-h-48 cursor-pointer"
-              description="CSV"
+              label="Arraste o ficheiro aqui ou clique para seleccionar"
+              class="w-full min-h-44 cursor-pointer"
+              description="Apenas ficheiros .CSV"
               accept=".csv"
               layout="list"
               highlight
@@ -98,26 +102,31 @@ useSeoMeta({
               <template #files-bottom="{ removeFile, files }">
                 <UButton
                   v-if="files.length > 0"
-                  label="Remove all files"
+                  label="Remover ficheiro"
                   color="neutral"
+                  variant="ghost"
+                  size="sm"
+                  icon="i-lucide-trash-2"
+                  class="cursor-pointer"
                   @click="removeFile()"
                 />
               </template>
             </UFileUpload>
+
             <UButton
-              class="mt-4 cursor-pointer"
               color="secondary"
-              variant="soft"
+              class="cursor-pointer w-full sm:w-auto"
               icon="i-lucide-upload-cloud"
+              size="lg"
               :loading="isLoading"
               :disabled="isLoading || !selectedFile"
               @click="updateProducts"
             >
-              Atualizar Produtos
+              {{ isLoading ? "A carregar..." : "Atualizar Produtos" }}
             </UButton>
           </div>
         </div>
-      </main></template
-    >
+      </main>
+    </template>
   </div>
 </template>

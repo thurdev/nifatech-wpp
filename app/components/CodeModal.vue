@@ -2,8 +2,8 @@
 import { ref, computed } from "vue";
 import { useVerification } from "~/composables/verification";
 import { formatPhone } from "~/utils/formats";
-const { cPhoneNumber, setVerified } = useVerification();
 
+const { cPhoneNumber, setVerified } = useVerification();
 const phone = cPhoneNumber;
 
 const emit = defineEmits(["verify", "back"]);
@@ -11,10 +11,20 @@ const emit = defineEmits(["verify", "back"]);
 const code = ref([]);
 const isLoading = ref(false);
 const error = ref("");
+const resent = ref(false);
 
 const isComplete = computed(() => code.value.length === 6);
 
+// UX: assim que os 6 dígitos estão preenchidos, confirma automaticamente —
+// evita o passo extra de carregar no botão depois de colar/escrever o código.
+watch(isComplete, (complete) => {
+  if (complete && !isLoading.value) handleSubmit();
+});
+
 const handleSubmit = async () => {
+  // Guard: form @submit.prevent fires on Enter even when button is :disabled.
+  if (isLoading.value) return;
+
   if (!isComplete.value) {
     error.value = "Introduza o código completo";
     return;
@@ -35,7 +45,6 @@ const handleSubmit = async () => {
       setTimeout(() => {
         error.value = "";
       }, 3000);
-      return;
     }
   } finally {
     isLoading.value = false;
@@ -43,65 +52,97 @@ const handleSubmit = async () => {
 };
 
 const resendCode = async () => {
-  // Simulate resend
+  if (isLoading.value) return; // prevent double-tap
   code.value = [];
   error.value = "";
-
+  resent.value = false;
   isLoading.value = true;
-  await $fetch("https://n8n.thur.dev/webhook/nifatech/verify-phone", {
-    method: "POST",
-    body: { phoneNumber: phone.value },
-  });
-  isLoading.value = false;
+
+  try {
+    await $fetch("https://n8n.thur.dev/webhook/nifatech/verify-phone", {
+      method: "POST",
+      body: { phoneNumber: phone.value },
+    });
+    resent.value = true;
+    setTimeout(() => {
+      resent.value = false;
+    }, 4000);
+  } catch {
+    // Previously: no catch here — a network error left isLoading = true forever,
+    // permanently locking the modal (user could neither verify nor resend).
+    error.value = "Erro ao reenviar. Tente novamente.";
+    setTimeout(() => {
+      error.value = "";
+    }, 3000);
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 const formattedPhone = computed(() => formatPhone(String(phone.value)));
 </script>
 
 <template>
-  <UModal default-open :dismissible="false" :close="false">
+  <UModal
+    default-open
+    :dismissible="false"
+    :close="false"
+    :overlay="false"
+    :ui="{
+      content:
+        'ring-1 ring-[#13f2f2]/12 bg-black/55 backdrop-blur-2xl shadow-[0_0_50px_-18px_rgba(19,242,242,0.3)]',
+    }"
+  >
     <template #body>
       <div class="p-8">
         <!-- Back button -->
         <UButton
           v-motion
           variant="ghost"
-          class="absolute top-4 left-4 p-2 text-slate-400 hover:text-slate-600 transition-colors hover:bg-transparent cursor-pointer"
-          color="secondary"
-          :initial="{ scale: 0 }"
-          :enter="{
-            scale: 1,
-            transition: { type: 'spring', stiffness: 200, damping: 10 },
-          }"
+          color="neutral"
+          size="sm"
+          class="absolute top-4 left-4 cursor-pointer"
+          icon="i-lucide-arrow-left"
+          :initial="{ opacity: 0, x: -8 }"
+          :enter="{ opacity: 1, x: 0, transition: { delay: 100 } }"
           @click="$emit('back')"
+        />
+
+        <!-- Brand wordmark -->
+        <div
+          v-motion
+          class="flex items-center justify-center gap-2.5 mb-7"
+          :initial="{ opacity: 0, y: -6 }"
+          :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }"
         >
-          <svg
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15 19l-7-7 7-7"
+          <span class="relative flex-shrink-0">
+            <span class="absolute inset-0 rounded-lg bg-[#13f2f2]/20 blur-md" />
+            <img
+              src="~/assets/images/nifa-logo.png"
+              alt="NifaTech"
+              class="relative w-8 h-8 rounded-lg object-cover"
             />
-          </svg>
-        </UButton>
+          </span>
+          <span
+            class="text-logo text-lg tracking-[0.22em] text-white select-none"
+          >
+            nifa tech
+          </span>
+        </div>
 
         <!-- Icon -->
         <div
           v-motion
-          class="w-16 h-16 bg-secondary/10 rounded-2xl flex items-center justify-center mx-auto mb-6"
-          :initial="{ scale: 0 }"
+          class="nifa-icon-halo w-14 h-14 bg-[#13f2f2]/10 border border-[#13f2f2]/20 rounded-2xl flex items-center justify-center mx-auto mb-6"
+          :initial="{ scale: 0, rotate: -8 }"
           :enter="{
             scale: 1,
-            transition: { type: 'spring', stiffness: 200, damping: 10 },
+            rotate: 0,
+            transition: { type: 'spring', stiffness: 220, damping: 12 },
           }"
         >
           <svg
-            class="w-8 h-8 text-secondary"
+            class="w-7 h-7 text-[#13f2f2]"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -110,7 +151,7 @@ const formattedPhone = computed(() => formatPhone(String(phone.value)));
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
             />
           </svg>
         </div>
@@ -118,37 +159,37 @@ const formattedPhone = computed(() => formatPhone(String(phone.value)));
         <!-- Title -->
         <h2
           v-motion
-          class="text-2xl font-semibold text-center mb-2"
-          :initial="{ opacity: 0, y: 10 }"
-          :enter="{ opacity: 1, y: 0, transition: { delay: 300 } }"
+          class="text-xl font-semibold text-center mb-1"
+          :initial="{ opacity: 0, y: 8 }"
+          :enter="{ opacity: 1, y: 0, transition: { delay: 90 } }"
         >
-          Verificar Código
+          Verificar identidade
         </h2>
         <p
           v-motion
-          class="text-slate-500 text-center mb-2"
-          :initial="{ opacity: 0, y: 10 }"
-          :enter="{ opacity: 1, y: 0, transition: { delay: 400 } }"
+          class="text-sm text-[var(--ui-text-muted)] text-center mb-1"
+          :initial="{ opacity: 0, y: 8 }"
+          :enter="{ opacity: 1, y: 0, transition: { delay: 150 } }"
         >
-          Enviámos um código para
+          Código enviado para
         </p>
         <p
           v-motion
-          class="text-secondary text-2xl font-medium text-center mb-8"
-          :initial="{ opacity: 0, y: 10 }"
-          :enter="{ opacity: 1, y: 0, transition: { delay: 400 } }"
+          class="text-base font-semibold text-[#13f2f2] text-center mb-7"
+          :initial="{ opacity: 0, y: 8 }"
+          :enter="{ opacity: 1, y: 0, transition: { delay: 200 } }"
         >
           +55 {{ formattedPhone }}
         </p>
 
-        <!-- Code Input -->
+        <!-- OTP Input & Submit -->
         <form
           v-motion
-          :initial="{ opacity: 0, y: 10 }"
-          :enter="{ opacity: 1, y: 0, transition: { delay: 500 } }"
+          :initial="{ opacity: 0, y: 8 }"
+          :enter="{ opacity: 1, y: 0, transition: { delay: 260 } }"
           @submit.prevent="handleSubmit"
         >
-          <div class="flex justify-center mb-6">
+          <div class="flex justify-center mb-5">
             <UPinInput
               v-model="code"
               otp
@@ -161,9 +202,9 @@ const formattedPhone = computed(() => formatPhone(String(phone.value)));
           <p
             v-if="error"
             v-motion
-            class="text-center text-sm text-red-500 mb-4"
-            :initial="{ opacity: 0, y: 10 }"
-            :enter="{ opacity: 1, y: 0, transition: { delay: 100 } }"
+            class="text-center text-xs text-red-400 mb-4"
+            :initial="{ opacity: 0, y: 4 }"
+            :enter="{ opacity: 1, y: 0 }"
           >
             {{ error }}
           </p>
@@ -172,25 +213,30 @@ const formattedPhone = computed(() => formatPhone(String(phone.value)));
             type="submit"
             :disabled="isLoading || !isComplete"
             :loading="isLoading"
-            class="w-full font-medium rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
+            class="w-full font-semibold rounded-xl cursor-pointer justify-center transition-shadow duration-300 hover:shadow-[0_0_28px_-6px_rgba(19,242,242,0.55)]"
             size="xl"
             color="secondary"
+            block
           >
-            <span>{{ isLoading ? "A verificar..." : "Confirmar" }}</span>
+            {{ isLoading ? "A verificar..." : "Confirmar código" }}
           </UButton>
         </form>
 
         <!-- Resend -->
         <div
           v-motion
-          class="mt-6 text-center"
-          :initial="{ opacity: 0, y: 10 }"
-          :enter="{ opacity: 1, y: 0, transition: { delay: 600 } }"
+          class="mt-5 text-center"
+          :initial="{ opacity: 0 }"
+          :enter="{ opacity: 1, transition: { delay: 320 } }"
         >
-          <p class="text-slate-500 text-sm">
+          <p v-if="resent" class="text-xs text-emerald-400">
+            Código reenviado com sucesso.
+          </p>
+          <p v-else class="text-xs text-[var(--ui-text-muted)]">
             Não recebeu o código?
             <button
-              class="text-secondary hover:text-secondary/80 font-medium ml-1 cursor-pointer"
+              class="text-[#13f2f2] hover:text-[#13f2f2]/80 font-medium ml-1 cursor-pointer underline-offset-2 hover:underline"
+              :disabled="isLoading"
               @click="resendCode"
             >
               Reenviar

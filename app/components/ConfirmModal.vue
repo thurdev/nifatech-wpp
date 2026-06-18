@@ -1,45 +1,55 @@
 <script setup lang="ts">
 import { currencyFormatter } from "~/utils/formats";
 import type { Product } from "~/types/product";
+
 const model = defineModel<boolean>();
 
+// `loading` is owned by the parent (index.vue) and reflects the true async state.
+// Previously ConfirmModal had its own isLoading + setTimeout(1000) which reset
+// independently of the actual network request — allowing a second confirm click
+// on slow connections.
 defineProps<{
   product?: Product;
+  loading?: boolean;
 }>();
 
 const $emit = defineEmits(["confirm", "cancel"]);
-const isLoading = ref(false);
 
 const handleClose = () => {
   model.value = false;
   $emit("cancel");
 };
 
+// No local loading state. Just emit — parent sets isOrderLoading = true immediately.
 const handleConfirm = () => {
-  isLoading.value = true;
   $emit("confirm");
-  setTimeout(() => {
-    isLoading.value = false;
-  }, 1000);
 };
 </script>
 
 <template>
-  <UModal :open="model" :close="false" @after:leave="handleClose">
+  <UModal
+    :open="model"
+    :close="false"
+    :ui="{
+      content:
+        'ring-1 ring-white/10 bg-black/70 backdrop-blur-2xl shadow-[0_0_60px_-16px_rgba(19,242,242,0.35)]',
+    }"
+    @after:leave="handleClose"
+  >
     <template #body>
       <div class="p-8">
         <!-- Icon -->
         <div
           v-motion
-          class="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-6"
+          class="w-14 h-14 bg-amber-400/10 border border-amber-400/20 rounded-2xl flex items-center justify-center mx-auto mb-6"
           :initial="{ scale: 0 }"
           :enter="{
             scale: 1,
-            transition: { type: 'spring', stiffness: 200, damping: 10 },
+            transition: { type: 'spring', stiffness: 220, damping: 12 },
           }"
         >
           <svg
-            class="w-8 h-8 text-amber-500"
+            class="w-7 h-7 text-amber-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -48,7 +58,7 @@ const handleConfirm = () => {
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              d="M5 13l4 4L19 7"
             />
           </svg>
         </div>
@@ -56,17 +66,17 @@ const handleConfirm = () => {
         <!-- Title -->
         <h2
           v-motion
-          class="text-2xl font-semibold text-black dark:text-white text-center mb-2"
-          :initial="{ opacity: 0, y: 10 }"
-          :enter="{ opacity: 1, y: 0, transition: { delay: 300 } }"
+          class="text-xl font-semibold text-center mb-1"
+          :initial="{ opacity: 0, y: 8 }"
+          :enter="{ opacity: 1, y: 0, transition: { delay: 200 } }"
         >
           Confirmar Reserva
         </h2>
         <p
           v-motion
-          class="text-slate-500 dark:text-white/50 text-center mb-6"
-          :initial="{ opacity: 0, y: 10 }"
-          :enter="{ opacity: 1, y: 0, transition: { delay: 400 } }"
+          class="text-sm text-[var(--ui-text-muted)] text-center mb-6"
+          :initial="{ opacity: 0, y: 8 }"
+          :enter="{ opacity: 1, y: 0, transition: { delay: 300 } }"
         >
           Tem a certeza que deseja reservar este produto?
         </p>
@@ -75,16 +85,16 @@ const handleConfirm = () => {
         <div
           v-if="product"
           v-motion
-          class="bg-secondary/10 rounded-xl p-4 mb-8"
-          :initial="{ opacity: 0, y: 10 }"
-          :enter="{ opacity: 1, y: 0, transition: { delay: 500 } }"
+          class="rounded-xl border border-[var(--ui-border)] bg-[var(--ui-bg-elevated)] p-4 mb-7"
+          :initial="{ opacity: 0, y: 8 }"
+          :enter="{ opacity: 1, y: 0, transition: { delay: 400 } }"
         >
-          <div class="flex items-center gap-4">
+          <div class="flex items-start gap-3">
             <div
-              class="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center shadow-sm"
+              class="w-10 h-10 bg-[#13f2f2]/10 border border-[#13f2f2]/15 rounded-lg flex items-center justify-center flex-shrink-0"
             >
               <svg
-                class="w-6 h-6 text-secondary"
+                class="w-5 h-5 text-[#13f2f2]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -97,17 +107,20 @@ const handleConfirm = () => {
                 />
               </svg>
             </div>
-            <div class="flex-1">
-              <h3 class="font-semibold text-secondary">
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-sm truncate">
                 {{ product.product_name }}
-              </h3>
-              <p class="text-sm text-slate-500 dark:text-white/50">
+              </p>
+              <p class="text-xs text-[var(--ui-text-muted)] mt-0.5">
                 {{ product.category }}
               </p>
             </div>
-            <div class="text-right">
-              <p class="font-semibold text-secondary">
+            <div class="text-right flex-shrink-0">
+              <p class="text-sm font-bold text-[#13f2f2]">
                 {{ currencyFormatter(product.price_lojista) }}
+              </p>
+              <p class="text-[10px] text-[var(--ui-text-muted)] mt-0.5">
+                Preço lojista
               </p>
             </div>
           </div>
@@ -117,28 +130,28 @@ const handleConfirm = () => {
         <div
           v-motion
           class="flex gap-3"
-          :initial="{ opacity: 0, y: 10 }"
-          :enter="{ opacity: 1, y: 0, transition: { delay: 600 } }"
+          :initial="{ opacity: 0, y: 8 }"
+          :enter="{ opacity: 1, y: 0, transition: { delay: 500 } }"
         >
           <UButton
-            class="flex-1 flex items-center justify-center cursor-pointer"
-            color="secondary"
+            class="flex-1 cursor-pointer"
+            color="neutral"
             variant="outline"
-            size="xl"
-            :disabled="isLoading"
+            size="lg"
+            :disabled="loading"
             @click="$emit('cancel')"
           >
             Cancelar
           </UButton>
           <UButton
-            class="flex-1 flex items-center justify-center cursor-pointer"
+            class="flex-1 cursor-pointer"
             color="secondary"
-            size="xl"
-            :loading="isLoading"
-            :disabled="isLoading"
+            size="lg"
+            :loading="loading"
+            :disabled="loading"
             @click="handleConfirm"
           >
-            Confirmar
+            Confirmar reserva
           </UButton>
         </div>
       </div>

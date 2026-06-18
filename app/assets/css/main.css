@@ -1,13 +1,266 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+/* ── Brand fonts (mirrors nifatech.com.br) ── */
 @font-face {
   font-family: "Versatylo";
-  src: url("./assets/fonts/Versatylo.woff") format("woff");
+  src: url("/assets/fonts/Versatylo.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Modica";
+  src: url("/assets/fonts/modica-2/PauloGoodeModicaBold.otf") format("opentype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Modica";
+  src: url("/assets/fonts/modica-2/PauloGoodeModicaSemiBold.otf")
+    format("opentype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Modica";
+  src: url("/assets/fonts/modica-2/PauloGoodeModicaRegular.otf")
+    format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Modica";
+  src: url("/assets/fonts/modica-2/PauloGoodeModicaLight.otf")
+    format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Custom neon-cyan palette anchored on the brand #13f2f2.
+   Mapped to Nuxt UI `primary`/`secondary` via app.config.ts so every
+   UButton/UInput/UTable accent matches the marketing site exactly. */
+@theme static {
+  --color-neon-50: #eafefe;
+  --color-neon-100: #cbfdfd;
+  --color-neon-200: #9bfafa;
+  --color-neon-300: #5cf5f5;
+  --color-neon-400: #13f2f2;
+  --color-neon-500: #08d6d6;
+  --color-neon-600: #07abab;
+  --color-neon-700: #0c8888;
+  --color-neon-800: #116a6a;
+  --color-neon-900: #135858;
+  --color-neon-950: #053737;
 }
 
 @layer base {
+  :root {
+    /* Exact brand palette from nifatech.com.br */
+    --nifa-cyan: #13f2f2;
+    --nifa-cyan-soft: rgba(19, 242, 242, 0.12);
+    --nifa-blue-1: #033159;
+    --nifa-blue-2: #032340;
+    --nifa-blue-3: #011826;
+    --nifa-teal: #0a89a6;
+  }
+
+  /* Pure-black canvas like the marketing site. The default Nuxt UI dark
+     surfaces/borders (oklch ~0.27) were tuned for a slate background and read
+     as washed-out grey on pure black, so we darken them into a cohesive ramp. */
+  :root,
+  .dark {
+    --ui-bg: #000000;
+    --ui-bg-muted: #070707;
+    --ui-bg-elevated: #101013;
+    --ui-bg-accented: #18181c;
+    --ui-border: #1b1b1f;
+    --ui-border-muted: #141417;
+    --ui-border-accented: #2a2a30;
+  }
+
+  html,
+  body {
+    background-color: #000000;
+  }
+
+  body {
+    font-family: "Modica", "Outfit", system-ui, -apple-system, sans-serif;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
   .text-logo {
     font-family: Versatylo, system-ui, sans-serif;
+  }
+
+  /* Cyan selection (brand) */
+  ::selection {
+    background: var(--nifa-cyan);
+    color: #000;
+  }
+
+  /* Teal→cyan gradient scrollbar (brand) */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #050505;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(var(--nifa-teal), var(--nifa-cyan));
+    border-radius: 9999px;
+    border: 2px solid #050505;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--nifa-cyan);
+  }
+}
+
+/* ───────────────────────────── Motion primitives ─────────────────────────── */
+@keyframes nifa-aurora-a {
+  0%,
+  100% {
+    transform: translate3d(-8%, -6%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(10%, 8%, 0) scale(1.25);
+  }
+}
+@keyframes nifa-aurora-b {
+  0%,
+  100% {
+    transform: translate3d(8%, 10%, 0) scale(1.1);
+  }
+  50% {
+    transform: translate3d(-12%, -8%, 0) scale(0.85);
+  }
+}
+@keyframes nifa-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes nifa-shimmer {
+  0% {
+    background-position: -160% 0;
+  }
+  100% {
+    background-position: 260% 0;
+  }
+}
+@keyframes nifa-ring-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(19, 242, 242, 0.35);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(19, 242, 242, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(19, 242, 242, 0);
+  }
+}
+
+/* Animated atmospheric background for the auth (login) flow */
+.nifa-aurora {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.nifa-aurora::before,
+.nifa-aurora::after {
+  content: "";
+  position: absolute;
+  width: 62vmax;
+  height: 62vmax;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.4;
+  will-change: transform;
+}
+.nifa-aurora::before {
+  top: -22%;
+  left: -12%;
+  background: radial-gradient(
+    circle at center,
+    rgba(19, 242, 242, 0.34),
+    transparent 64%
+  );
+  animation: nifa-aurora-a 20s ease-in-out infinite;
+}
+.nifa-aurora::after {
+  bottom: -26%;
+  right: -16%;
+  background: radial-gradient(
+    circle at center,
+    rgba(10, 137, 166, 0.3),
+    transparent 66%
+  );
+  animation: nifa-aurora-b 24s ease-in-out infinite;
+}
+
+/* Fine grain overlay to kill banding and add texture */
+.nifa-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Soft halo behind the auth icon badge */
+.nifa-icon-halo {
+  position: relative;
+}
+.nifa-icon-halo::after {
+  content: "";
+  position: absolute;
+  inset: -35%;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at center,
+    rgba(19, 242, 242, 0.22),
+    transparent 70%
+  );
+  filter: blur(12px);
+  z-index: -1;
+  animation: nifa-float 6s ease-in-out infinite;
+}
+
+/* Shimmering sweep usable on buttons / headings */
+.nifa-shimmer-text {
+  background: linear-gradient(
+    100deg,
+    var(--ui-text) 30%,
+    var(--nifa-cyan) 50%,
+    var(--ui-text) 70%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: nifa-shimmer 5s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nifa-aurora::before,
+  .nifa-aurora::after,
+  .nifa-icon-halo::after,
+  .nifa-shimmer-text {
+    animation: none !important;
   }
 }
