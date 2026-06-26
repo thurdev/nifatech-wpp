@@ -169,7 +169,7 @@ const columns: TableColumn<Product>[] = [
               class:
                 "text-xs font-semibold text-[#13f2f2]",
             },
-            `Parceiro NT: ${currencyFormatter(priceNt)}`,
+            `Lote Promocional: ${currencyFormatter(priceNt)}`,
           ),
         );
       }
